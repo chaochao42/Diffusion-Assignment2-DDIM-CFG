@@ -168,8 +168,13 @@ class DiffusionModule(nn.Module):
             alpha_prod_t_prev = extract(self.var_scheduler.alphas_cumprod, t_prev, xt)
         else:
             alpha_prod_t_prev = torch.ones_like(alpha_prod_t)
-
-        x_t_prev = xt
+            
+        predict_noise = self.network(xt, t.to(xt.device))
+        
+        beta_hat = extract(self.var_scheduler.betas, t, xt)*(1-alpha_prod_t_prev)/(1-alpha_prod_t)
+          
+        x_t_prev = alpha_prod_t_prev.sqrt()*(xt-(1-alpha_prod_t).sqrt()*predict_noise)/(alpha_prod_t.sqrt()) + \
+            (1-alpha_prod_t_prev-beta_hat).sqrt() + torch.randn_like(xt) * (beta_hat.sqrt())
 
         ######################
         return x_t_prev
@@ -202,7 +207,7 @@ class DiffusionModule(nn.Module):
 
         xt = torch.zeros(shape).to(self.device)
         for t, t_prev in zip(timesteps, prev_timesteps):
-            pass
+            xt = self.ddim_p_sample(xt, t, t_prev)
 
         x0_pred = xt
 

@@ -82,37 +82,37 @@ for step in pbar:
     
     losses.append(loss.item())
     
-    if step % 4999 == 0:
-        with torch.no_grad():
-            ####
-            # NOTE: If you haven't implemented the `ddim_p_sample_loop` method,
-            # use the `p_sample_loop` method instead.
-            x0 = ddpm.p_sample_loop(shape=(num_vis_particles, 2)).cpu()
-            # x0 = ddpm.ddim_p_sample_loop(shape=(num_vis_particles, 2)).cpu()
-            ####
-            fig, ax = plt.subplots(1,1)
-            ax.scatter(x0[:,0], x0[:,1])
-            ax.set_title(f"Samples at {step}-iteration")
-            clear_output(wait=True)
-            plt.show()
-            img = figure2image(fig)
-            images.append(img)
+    # if step % 4999 == 0:
+    #     with torch.no_grad():
+    #         ####
+    #         # NOTE: If you haven't implemented the `ddim_p_sample_loop` method,
+    #         # use the `p_sample_loop` method instead.
+    #         x0 = ddpm.p_sample_loop(shape=(num_vis_particles, 2)).cpu()
+    #         # x0 = ddpm.ddim_p_sample_loop(shape=(num_vis_particles, 2)).cpu()
+    #         ####
+    #         fig, ax = plt.subplots(1,1)
+    #         ax.scatter(x0[:,0], x0[:,1])
+    #         ax.set_title(f"Samples at {step}-iteration")
+    #         clear_output(wait=True)
+    #         plt.show()
+    #         img = figure2image(fig)
+    #         images.append(img)
                 
-if len(images) > 0:
-    slider = IntSlider(min=0, max=len(images)-1, step=1, value=1)
-    output = Output()
-    def display_image(index):
-        with output:
-            output.clear_output(wait=True)
-            display(images[index])
-    interact(display_image, index=slider)
-    display(output)
-    plt.plot(losses)
-    plt.title("Loss curve")
+# if len(images) > 0:
+#     slider = IntSlider(min=0, max=len(images)-1, step=1, value=1)
+#     output = Output()
+#     def display_image(index):
+#         with output:
+#             output.clear_output(wait=True)
+#             display(images[index])
+#     interact(display_image, index=slider)
+#     display(output)
+#     plt.plot(losses)
+#     plt.title("Loss curve")
 
 num_eval_particles = 2048
 pc_ref = target_ds[:num_eval_particles]
-pc_gen = ddpm.p_sample_loop(shape=(num_eval_particles, 2))
+pc_gen = ddpm.ddim_p_sample_loop(shape=(num_eval_particles, 2))
 
 pc_gen = pc_gen.reshape(1, num_eval_particles, 2)
 pc_ref = pc_ref.reshape(1, num_eval_particles, 2)
